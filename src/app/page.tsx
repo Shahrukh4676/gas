@@ -1,66 +1,79 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { GasReading } from '@/lib/store';
+import AlertBanner from '@/components/AlertBanner';
+import StatusCards from '@/components/StatusCards';
+import GasChart from '@/components/GasChart';
+import ReadingsTable from '@/components/ReadingsTable';
+import { Cloud, Info } from 'lucide-react';
 
 export default function Home() {
+  const [readings, setReadings] = useState<GasReading[]>([]);
+  const [latestGasValue, setLatestGasValue] = useState<number>(0);
+  const [latestTimestamp, setLatestTimestamp] = useState<string>('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/history');
+        if (response.ok) {
+          const data = await response.json();
+          setReadings(data);
+          if (data.length > 0) {
+            const latest = data[data.length - 1];
+            setLatestGasValue(latest.gasValue);
+            setLatestTimestamp(latest.timestamp);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching gas data:', error);
+      }
+    };
+
+    fetchData(); // Initial fetch
+    const interval = setInterval(fetchData, 1000); // Poll every 1 second
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <header>
+        <div className="header-title">
+          <Cloud color="#38bdf8" />
+          IoT Gas Monitoring Dashboard
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="live-indicator">
+          <div className="live-dot"></div>
+          Live
+        </div>
+      </header>
+
+      <main className="container">
+        <AlertBanner gasValue={latestGasValue} />
+        
+        <StatusCards gasValue={latestGasValue} timestamp={latestTimestamp} />
+        
+        <GasChart readings={readings} />
+        
+        <ReadingsTable readings={readings} />
+
+        <div className="legend">
+          <div className="legend-item">
+            <Info size={16} color="#3b82f6" />
+            <span><strong>Safe:</strong> &le; 300 PPM</span>
+          </div>
+          <div className="legend-item">
+            <div style={{width: 12, height: 12, borderRadius: 2, backgroundColor: 'var(--warning-color)'}}></div>
+            <span><strong>Warning:</strong> 301 - 510 PPM</span>
+          </div>
+          <div className="legend-item">
+            <div style={{width: 12, height: 12, borderRadius: 2, backgroundColor: 'var(--danger-color)'}}></div>
+            <span><strong>Danger:</strong> &gt; 510 PPM</span>
+          </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }
