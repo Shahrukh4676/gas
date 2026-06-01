@@ -7,8 +7,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
-  Annotation
+  Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { format } from 'date-fns';
