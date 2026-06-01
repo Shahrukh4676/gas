@@ -16,15 +16,22 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/history');
+        const response = await fetch('/api/gas-data');
         if (response.ok) {
           const data = await response.json();
-          setReadings(data);
-          if (data.length > 0) {
-            const latest = data[data.length - 1];
-            setLatestGasValue(latest.gasValue);
-            setLatestTimestamp(latest.timestamp);
-          }
+          setLatestGasValue(data.gasValue);
+          setLatestTimestamp(new Date().toISOString());
+          
+          // Maintain the history array locally since the API now only returns the latest value
+          setReadings(prev => {
+            const newReading: GasReading = {
+              id: Math.random().toString(36).substring(7),
+              timestamp: new Date().toISOString(),
+              gasValue: data.gasValue
+            };
+            const updated = [...prev, newReading];
+            return updated.length > 50 ? updated.slice(1) : updated;
+          });
         }
       } catch (error) {
         console.error('Error fetching gas data:', error);
