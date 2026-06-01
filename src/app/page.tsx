@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ref, onValue } from 'firebase/database';
+import { database } from '@/lib/firebase';
 import { GasReading } from '@/lib/store';
 import AlertBanner from '@/components/AlertBanner';
 import StatusCards from '@/components/StatusCards';
@@ -14,34 +16,36 @@ export default function Home() {
   const [latestTimestamp, setLatestTimestamp] = useState<string>('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/gas-data');
-        if (response.ok) {
-          const data = await response.json();
-          setLatestGasValue(data.gasValue);
-          setLatestTimestamp(new Date().toISOString());
-          
-          // Maintain the history array locally since the API now only returns the latest value
-          setReadings(prev => {
-            const newReading: GasReading = {
-              id: Math.random().toString(36).substring(7),
-              timestamp: new Date().toISOString(),
-              gasValue: data.gasValue
-            };
-            const updated = [...prev, newReading];
-            return updated.length > 50 ? updated.slice(1) : updated;
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching gas data:', error);
+    const sensorRef = ref(database, "sensor");
+
+    const unsubscribe = onValue(sensorRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data && typeof data.gasValue !== 'undefined') {
+        setLatestGasValue(data.gasValue);
+        
+        // Handle timestamp (Python snippet sends int timestamp in seconds, JS needs ms)
+        const time = data.timestamp ? new Date(data.timestamp * 1000).toISOString() : new Date().toISOString();
+        setLatestTimestamp(time);
+
+        setReadings(prev => {
+          // Prevent adding duplicate sequential identical values if it's updating rapidly
+          if (prev.length > 0 && prev[prev.length - 1].gasValue === data.gasValue && prev[prev.length - 1].timestamp === time) {
+            return prev;
+          }
+
+          const newReading: GasReading = {
+            id: Math.random().toString(36).substring(7),
+            timestamp: time,
+            gasValue: data.gasValue
+          };
+          const updated = [...prev, newReading];
+          return updated.length > 50 ? updated.slice(1) : updated;
+        });
       }
-    };
+    });
 
-    fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 1000); // Poll every 1 second
-
-    return () => clearInterval(interval);
+    return () => unsubscribe();
   }, []);
 
   return (
