@@ -12,12 +12,12 @@ export default function StatusCards({ gasValue, timestamp }: StatusCardsProps) {
   let badgeClass = 'status-badge-safe';
   let message = 'Gas levels are normal';
 
-  if (gasValue >= 510) {
+  if (gasValue >= 300) {
     status = 'DANGER';
     statusClass = 'status-danger';
     badgeClass = 'status-badge-danger';
     message = 'Gas level is too high!';
-  } else if (gasValue > 300) {
+  } else if (gasValue > 200) {
     status = 'WARNING';
     statusClass = 'status-warning';
     badgeClass = 'status-badge-warning';

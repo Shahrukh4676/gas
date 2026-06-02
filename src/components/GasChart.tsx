@@ -45,8 +45,8 @@ export default function GasChart({ readings }: GasChartProps) {
         tension: 0.4,
         fill: true,
         pointBackgroundColor: chartReadings.map(r => {
-          if (r.gasValue >= 510) return '#ef4444';
-          if (r.gasValue > 300) return '#f59e0b';
+          if (r.gasValue >= 300) return '#ef4444';
+          if (r.gasValue > 200) return '#f59e0b';
           return '#22c55e';
         }),
         pointRadius: 4,

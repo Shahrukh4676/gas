@@ -9,7 +9,7 @@ export default function AlertBanner({ gasValue }: AlertBannerProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (gasValue >= 510) {
+    if (gasValue >= 300) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -22,7 +22,7 @@ export default function AlertBanner({ gasValue }: AlertBannerProps) {
     <div className="alert-banner">
       <div className="alert-content">
         <AlertTriangle size={24} />
-        <span>Danger Alert! Gas value has reached 510 PPM. Current value: {gasValue} PPM.</span>
+        <span>Danger Alert! Gas value has reached 300 PPM. Current value: {gasValue} PPM.</span>
       </div>
       <button 
         onClick={() => setIsVisible(false)}
