@@ -11,8 +11,8 @@ export default function ReadingsTable({ readings }: ReadingsTableProps) {
   const recentReadings = [...readings].reverse().slice(0, 10);
 
   const getStatus = (val: number) => {
-    if (val > 510) return { text: 'DANGER', class: 'status-badge-danger' };
-    if (val > 300) return { text: 'WARNING', class: 'status-badge-warning' };
+    if (val > 180) return { text: 'DANGER', class: 'status-badge-danger' };
+    if (val > 120) return { text: 'WARNING', class: 'status-badge-warning' };
     return { text: 'SAFE', class: 'status-badge-safe' };
   };
 
