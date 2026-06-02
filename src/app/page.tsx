@@ -73,15 +73,15 @@ export default function Home() {
         <div className="legend">
           <div className="legend-item">
             <Info size={16} color="#3b82f6" />
-            <span><strong>Safe:</strong> 0 - 110 PPM</span>
+            <span><strong>Safe:</strong> 0 - 300 PPM</span>
           </div>
           <div className="legend-item">
             <div style={{width: 12, height: 12, borderRadius: 2, backgroundColor: 'var(--warning-color)'}}></div>
-            <span><strong>Warning:</strong> 111 - 149 PPM</span>
+            <span><strong>Warning:</strong> 301 - 509 PPM</span>
           </div>
           <div className="legend-item">
             <div style={{width: 12, height: 12, borderRadius: 2, backgroundColor: 'var(--danger-color)'}}></div>
-            <span><strong>Danger:</strong> &ge; 150 PPM</span>
+            <span><strong>Danger:</strong> &ge; 510 PPM</span>
           </div>
         </div>
       </main>
